@@ -4,6 +4,8 @@ import { BadRequestError } from '../errors/customErrors.js'
 import User from '../model/userModel.js'
 import createSecretToken from '../utils/tokenUtils.js'
 
+const oneDay = 1000 * 60 * 60 * 24
+
 export const signUp = async (req, res, next) => {
   const { email, password, username, createdAt } = req.body
   const existingUser = await User.findOne({ email })
@@ -18,12 +20,14 @@ export const signUp = async (req, res, next) => {
 
   res.cookie('token', token, {
     withCredentials: true,
-    httpOnly: false,
+    httpOnly: true,
   })
 
   res.status(StatusCodes.CREATED).json({
     msg: 'User signed in successfully',
     success: true,
+    expires: new Date(Date.now() + oneDay),
+    secure: process.env.NODE_ENV === 'production',
     user,
   })
   next()
@@ -49,7 +53,9 @@ export const login = async (req, res, next) => {
   const token = await createSecretToken(user._id)
   res.cookie('token', token, {
     withCredentials: true,
-    httpOnly: false,
+    httpOnly: true,
+    expires: new Date(Date.now() + oneDay),
+    secure: process.env.NODE_ENV === 'production',
   })
 
   res.status(StatusCodes.CREATED).json({
