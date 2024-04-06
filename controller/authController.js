@@ -1,5 +1,6 @@
 import bcrypt from 'bcryptjs'
 import { StatusCodes } from 'http-status-codes'
+import { BadRequestError } from '../errors/customErrors.js'
 import User from '../model/userModel.js'
 import createSecretToken from '../utils/tokenUtils.js'
 
@@ -8,7 +9,7 @@ export const signUp = async (req, res, next) => {
   const existingUser = await User.findOne({ email })
 
   if (existingUser) {
-    return res.json({ msg: 'User already exists' })
+    throw new BadRequestError('User already Exists')
   }
 
   const user = await User.create({ email, password, username, createdAt })
@@ -31,19 +32,19 @@ export const signUp = async (req, res, next) => {
 export const login = async (req, res, next) => {
   const { email, password } = req.body
   if (!email || !password) {
-    return res.json({ msg: 'Please provide credentials' })
+    throw new BadRequestError('Please provide credentials')
   }
   const user = await User.findOne({
     email,
   })
 
   if (!user) {
-    return res.json({ msg: 'No user by that email' })
+    throw new BadRequestError('No user by that email')
   }
   const isPasswordCorrect = await bcrypt.compare(password, user.password)
 
   if (!isPasswordCorrect) {
-    return res.json({ msg: 'Incorrect password' })
+    throw new BadRequestError('Incorrect password')
   }
   const token = await createSecretToken(user._id)
   res.cookie('token', token, {

@@ -1,4 +1,5 @@
 import cookieParser from 'cookie-parser'
+import cors from 'cors'
 import { configDotenv } from 'dotenv'
 import express from 'express'
 import 'express-async-errors'
@@ -6,10 +7,14 @@ import { createServer } from 'http'
 import mongoose from 'mongoose'
 import morgan from 'morgan'
 import { Server } from 'socket.io'
+import errorHandlerMiddleware from './middleware/errorHandlerMiddlware.js'
 import authRouter from './router/authRoute.js'
+
 configDotenv()
 
 const app = express()
+
+app.use(cors())
 
 app.use(morgan('tiny'))
 
@@ -18,6 +23,7 @@ app.use(cookieParser())
 app.use(express.json())
 
 app.use('/api', authRouter)
+app.use('/api', errorHandlerMiddleware)
 
 const PORT = 8080
 

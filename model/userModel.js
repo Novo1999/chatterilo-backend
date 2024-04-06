@@ -21,6 +21,13 @@ const userSchema = new Schema({
   },
 })
 
+userSchema.methods.toJSON = function () {
+  const user = this
+  const userObj = user.toObject()
+  delete userObj.password
+  return userObj
+}
+
 userSchema.pre('save', async function () {
   this.password = await bcrypt.hash(this.password, 12)
 })
