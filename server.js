@@ -11,6 +11,7 @@ import errorHandlerMiddleware from './middleware/errorHandlerMiddlware.js'
 import authRouter from './router/authRoute.js'
 import fileRouter from './router/fileRouter.js'
 import friendRouter from './router/friendRoute.js'
+import userRouter from './router/userRouter.js'
 
 configDotenv()
 
@@ -30,6 +31,7 @@ app.use(cookieParser())
 app.use(express.json())
 
 app.use('/api/auth', authRouter)
+app.use('/api/user', userRouter)
 app.use('/api', friendRouter)
 app.use('/api', fileRouter)
 app.use('/api', errorHandlerMiddleware)

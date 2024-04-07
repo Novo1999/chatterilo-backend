@@ -32,6 +32,8 @@ const userSchema = new Schema({
   ],
 })
 
+userSchema.index({ username: 'text' })
+
 userSchema.methods.toJSON = function () {
   const user = this
   const userObj = user.toObject()
