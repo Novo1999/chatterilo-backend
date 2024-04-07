@@ -8,6 +8,14 @@ const conversationSchema = new Schema({
   messages: {
     type: [messageSchema],
   },
+  currentUserId: {
+    type: Schema.Types.ObjectId,
+    ref: 'User',
+  },
+  recipientUserId: {
+    type: Schema.Types.ObjectId,
+    ref: 'User',
+  },
 })
 
-export default model('User', conversationSchema)
+export default model('Conversation', conversationSchema)

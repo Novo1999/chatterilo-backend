@@ -19,6 +19,17 @@ const userSchema = new Schema({
     type: Date,
     default: new Date(),
   },
+  friends: [{ type: Schema.Types.ObjectId, ref: 'User' }],
+  friendRequests: {
+    sent: [{ type: Schema.Types.ObjectId, ref: 'User' }],
+    received: [{ type: Schema.Types.ObjectId, ref: 'User' }],
+  },
+  conversations: [
+    {
+      type: Schema.Types.ObjectId,
+      ref: 'Conversation',
+    },
+  ],
 })
 
 userSchema.methods.toJSON = function () {

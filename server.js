@@ -9,12 +9,19 @@ import morgan from 'morgan'
 import { Server } from 'socket.io'
 import errorHandlerMiddleware from './middleware/errorHandlerMiddlware.js'
 import authRouter from './router/authRoute.js'
+import fileRouter from './router/fileRouter.js'
+import friendRouter from './router/friendRoute.js'
 
 configDotenv()
 
 const app = express()
 
-app.use(cors())
+app.use(
+  cors({
+    origin: 'http://localhost:3000',
+    credentials: true,
+  })
+)
 
 app.use(morgan('tiny'))
 
@@ -22,8 +29,14 @@ app.use(cookieParser())
 
 app.use(express.json())
 
-app.use('/api', authRouter)
+app.use('/api/auth', authRouter)
+app.use('/api', friendRouter)
+app.use('/api', fileRouter)
 app.use('/api', errorHandlerMiddleware)
+
+app.use('*', (req, res) => {
+  res.status(404).json({ msg: 'not found' })
+})
 
 const PORT = 8080
 

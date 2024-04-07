@@ -23,6 +23,7 @@
     "mongoose": "^8.3.0",
     "morgan": "^1.10.0",
     "nodemon": "^3.1.0",
-    "socket.io": "^4.7.5"
+    "socket.io": "^4.7.5",
+    "uploadthing": "^6.7.0"
   }
 }

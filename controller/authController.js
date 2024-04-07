@@ -23,14 +23,13 @@ export const signUp = async (req, res, next) => {
     httpOnly: true,
   })
 
-  res.status(StatusCodes.CREATED).json({
+  return res.status(StatusCodes.CREATED).json({
     msg: 'User signed in successfully',
     success: true,
     expires: new Date(Date.now() + oneDay),
     secure: process.env.NODE_ENV === 'production',
     user,
   })
-  next()
 }
 
 export const login = async (req, res, next) => {
@@ -55,13 +54,21 @@ export const login = async (req, res, next) => {
     withCredentials: true,
     httpOnly: true,
     expires: new Date(Date.now() + oneDay),
-    secure: process.env.NODE_ENV === 'production',
+    secure: true,
+    sameSite: 'None',
   })
 
-  res.status(StatusCodes.CREATED).json({
+  return res.status(StatusCodes.CREATED).json({
     msg: 'User logged in successfully',
     success: true,
     user,
   })
-  next()
+}
+
+export const logout = (req, res) => {
+  res.cookie('token', 'logout', {
+    httpOnly: true,
+    expires: new Date(Date.now()),
+  })
+  res.status(StatusCodes.OK).json({ msg: 'user logged out!' })
 }
