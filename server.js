@@ -7,6 +7,7 @@ import { createServer } from 'http'
 import mongoose from 'mongoose'
 import morgan from 'morgan'
 import { Server } from 'socket.io'
+import { NotFoundError } from './errors/customErrors.js'
 import errorHandlerMiddleware from './middleware/errorHandlerMiddlware.js'
 import authRouter from './router/authRoute.js'
 import fileRouter from './router/fileRouter.js'
@@ -47,13 +48,56 @@ const server = createServer(app)
 const io = new Server(server, {
   cors: {
     origin: 'http://localhost:3000',
+    methods: ['GET', 'POST'],
   },
 })
 
+const connectedUsers = []
+
 io.on('connect', (socket) => {
-  console.log('Connected')
+  console.log(`User ${socket.id} connected`)
+
+  // connect users upon connection
+  socket.on('connected-user', (data) => {
+    const existingUserIndex = connectedUsers.findIndex(
+      (user) => user.id === data.id
+    )
+    if (existingUserIndex !== -1) {
+      connectedUsers.splice(existingUserIndex, 1)
+      if (data) {
+        connectedUsers.push({ ...data, socketId: socket.id })
+      }
+    } else {
+      if (data) {
+        connectedUsers.push({ ...data, socketId: socket.id })
+      }
+    }
+
+    io.emit('users', connectedUsers)
+    console.log(connectedUsers)
+  })
+
+  socket.on('connected-user-dc', (data) => {
+    const existingUserIndex = connectedUsers.findIndex(
+      (user) => user.id === data.id
+    )
+    if (existingUserIndex !== -1) {
+      connectedUsers.splice(existingUserIndex, 1)
+    } else {
+      return
+    }
+    io.emit('users', connectedUsers)
+  })
+
   socket.on('message', (data) => {
-    socket.emit('message', data)
+    console.log(socket.id)
+    io.emit('rec_message', 5)
+  })
+  socket.on('friend-request', ({ id, matchedConnectedUser }) => {
+    if (!matchedConnectedUser) {
+      return
+    }
+    io.to(matchedConnectedUser.socketId).emit('received_friend_request', id)
   })
 })
 

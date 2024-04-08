@@ -15,9 +15,12 @@ export const searchUser = async (req, res) => {
   const { q } = req.query
 
   const regex = new RegExp(q, 'i')
-  const users = await User.find({ username: { $regex: regex } })
+  const users = await User.find({
+    _id: { $ne: req.user._id },
+    username: { $regex: regex },
+  })
   if (users.length === 0) {
-    res.json([])
+    return res.json([])
   }
 
   if (q) {
@@ -26,7 +29,6 @@ export const searchUser = async (req, res) => {
 }
 
 export const getCurrentUser = async (req, res) => {
-  console.log(req)
   const user = await User.findOne({ _id: req.user._id })
   const userWithoutPassword = user.toJSON()
   res.status(StatusCodes.OK).json({ user: userWithoutPassword })

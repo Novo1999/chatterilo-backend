@@ -37,5 +37,7 @@ export const sendFriendRequest = async (req, res) => {
   })
 
   // Respond with success message
-  res.json({ message: 'Friend request sent successfully' })
+  res.json({
+    message: `Friend request sent successfully to ${recipient.username}`,
+  })
 }
