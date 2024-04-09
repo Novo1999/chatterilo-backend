@@ -13,6 +13,7 @@ import authRouter from './router/authRoute.js'
 import fileRouter from './router/fileRouter.js'
 import friendRouter from './router/friendRoute.js'
 import userRouter from './router/userRouter.js'
+import { doSocketOperations } from './utils/socket.js'
 
 configDotenv()
 
@@ -57,48 +58,7 @@ const connectedUsers = []
 io.on('connect', (socket) => {
   console.log(`User ${socket.id} connected`)
 
-  // connect users upon connection
-  socket.on('connected-user', (data) => {
-    const existingUserIndex = connectedUsers.findIndex(
-      (user) => user.id === data.id
-    )
-    if (existingUserIndex !== -1) {
-      connectedUsers.splice(existingUserIndex, 1)
-      if (data) {
-        connectedUsers.push({ ...data, socketId: socket.id })
-      }
-    } else {
-      if (data) {
-        connectedUsers.push({ ...data, socketId: socket.id })
-      }
-    }
-
-    io.emit('users', connectedUsers)
-    console.log(connectedUsers)
-  })
-
-  socket.on('connected-user-dc', (data) => {
-    const existingUserIndex = connectedUsers.findIndex(
-      (user) => user.id === data.id
-    )
-    if (existingUserIndex !== -1) {
-      connectedUsers.splice(existingUserIndex, 1)
-    } else {
-      return
-    }
-    io.emit('users', connectedUsers)
-  })
-
-  socket.on('message', (data) => {
-    console.log(socket.id)
-    io.emit('rec_message', 5)
-  })
-  socket.on('friend-request', ({ id, matchedConnectedUser }) => {
-    if (!matchedConnectedUser) {
-      return
-    }
-    io.to(matchedConnectedUser.socketId).emit('received_friend_request', id)
-  })
+  doSocketOperations(socket, connectedUsers, io)
 })
 
 try {

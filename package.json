@@ -9,7 +9,7 @@
     "dev": "nodemon server"
   },
   "keywords": [],
-  "author": "",
+  "author": "Novodip",
   "license": "ISC",
   "dependencies": {
     "bcryptjs": "^2.4.3",
