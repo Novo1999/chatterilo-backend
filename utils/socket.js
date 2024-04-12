@@ -1,3 +1,5 @@
+import { emitInvalidateUser } from './invalideUserUtil.js'
+
 export const doSocketOperations = (socket, connectedUsers, io) => {
   // connect users upon connection
   socket.on('connected-user', (data) => {
@@ -14,12 +16,15 @@ export const doSocketOperations = (socket, connectedUsers, io) => {
         connectedUsers.push({ ...data, socketId: socket.id })
       }
     }
+    // remove those that has no name
+    connectedUsers = connectedUsers.filter((user) => user.name)
 
     io.emit('users', connectedUsers)
     console.log(connectedUsers)
   })
 
   socket.on('connected-user-dc', (data) => {
+    console.log('user-dc', data)
     const existingUserIndex = connectedUsers.findIndex(
       (user) => user.id === data.id
     )
@@ -29,11 +34,15 @@ export const doSocketOperations = (socket, connectedUsers, io) => {
       return
     }
     io.emit('users', connectedUsers)
+    console.log('USERS', connectedUsers)
   })
 
   socket.on('message', (_) => {
     io.emit('rec_message', 5)
   })
+
+  // invalidates the other user
+  emitInvalidateUser(socket, io)
 
   // friend requests
   socket.on(

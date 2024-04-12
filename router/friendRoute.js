@@ -1,5 +1,6 @@
 import { Router } from 'express'
 import {
+  acceptFriendRequest,
   cancelFriendRequest,
   declineFriendRequest,
   sendFriendRequest,
@@ -15,7 +16,13 @@ router.delete(
   cancelFriendRequest
 )
 
-router.delete(
+router.patch(
+  '/friend/accept-friend-request/:id',
+  verifyUser,
+  acceptFriendRequest
+)
+
+router.patch(
   '/friend/decline-friend-request/:id',
   verifyUser,
   declineFriendRequest

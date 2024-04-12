@@ -7,7 +7,6 @@ import { createServer } from 'http'
 import mongoose from 'mongoose'
 import morgan from 'morgan'
 import { Server } from 'socket.io'
-import { NotFoundError } from './errors/customErrors.js'
 import errorHandlerMiddleware from './middleware/errorHandlerMiddlware.js'
 import authRouter from './router/authRoute.js'
 import fileRouter from './router/fileRouter.js'
@@ -53,8 +52,7 @@ const io = new Server(server, {
   },
 })
 
-const connectedUsers = []
-
+let connectedUsers = []
 io.on('connect', (socket) => {
   console.log(`User ${socket.id} connected`)
 
