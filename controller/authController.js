@@ -6,7 +6,7 @@ import createSecretToken from '../utils/tokenUtils.js'
 
 const oneDay = 1000 * 60 * 60 * 24
 
-export const signUp = async (req, res, next) => {
+export const signUp = async (req, res) => {
   const { email, password, username, createdAt } = req.body
   const existingUser = await User.findOne({ email })
 
@@ -32,7 +32,7 @@ export const signUp = async (req, res, next) => {
   })
 }
 
-export const login = async (req, res, next) => {
+export const login = async (req, res) => {
   const { email, password } = req.body
   if (!email || !password) {
     throw new BadRequestError('Please provide credentials')

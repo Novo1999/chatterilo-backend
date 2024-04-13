@@ -1,6 +1,7 @@
 import { Router } from 'express'
 import {
   acceptFriendRequest,
+  addToMessaging,
   cancelFriendRequest,
   declineFriendRequest,
   sendFriendRequest,
@@ -29,5 +30,6 @@ router.patch(
   declineFriendRequest
 )
 router.patch('/friend/unfriend/:id', verifyUser, unfriend)
+router.patch('/friend/add-to-messaging/:id', verifyUser, addToMessaging)
 
 export default router

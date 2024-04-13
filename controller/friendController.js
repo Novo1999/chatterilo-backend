@@ -141,7 +141,7 @@ export const acceptFriendRequest = async (req, res) => {
     {
       $pull: { 'friendRequests.received': id },
       $push: {
-        friends: id,
+        friends: { id, isMessaging: false },
       },
     },
     { new: true }
@@ -153,7 +153,7 @@ export const acceptFriendRequest = async (req, res) => {
     {
       $pull: { 'friendRequests.sent': userId },
       $push: {
-        friends: userId,
+        friends: { id: userId },
       },
     },
     { new: true }
@@ -184,7 +184,7 @@ export const unfriend = async (req, res) => {
     { _id: userId },
     {
       $pull: {
-        friends: id,
+        friends: { id },
       },
     },
     { new: true }
@@ -195,11 +195,42 @@ export const unfriend = async (req, res) => {
     { _id: id },
     {
       $pull: {
-        friends: userId,
+        friends: { id: userId },
       },
     },
     { new: true }
   )
 
   res.status(StatusCodes.OK).json({ updatedUser, updatedSender })
+}
+
+export const addToMessaging = async (req, res) => {
+  const { id } = req.params
+  const userId = req.user._id
+
+  // Check if id is a valid ObjectId
+  if (!Types.ObjectId.isValid(id)) {
+    return res
+      .status(StatusCodes.BAD_REQUEST)
+      .json({ error: 'Invalid user ID' })
+  }
+
+  const user = await User.findOne({ _id: userId })
+
+  if (!user) {
+    throw new NotFoundError('No user found')
+  }
+
+  // remove the friend id from the current logged in users received array of friend requests
+  const updatedUser = await User.findOneAndUpdate(
+    { _id: userId, 'friends.id': id }, // Look for the user with given userId and friends with matching id
+    {
+      $set: {
+        'friends.$.isMessaging': true, // Update the isMessaging field of the matching friend
+      },
+    },
+    { new: true }
+  )
+
+  res.status(StatusCodes.OK).json({ updatedUser })
 }

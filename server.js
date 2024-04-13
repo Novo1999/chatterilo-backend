@@ -35,7 +35,7 @@ app.use('/api/auth', authRouter)
 app.use('/api/user', userRouter)
 app.use('/api', friendRouter)
 app.use('/api', fileRouter)
-app.use('/api', errorHandlerMiddleware)
+app.use(errorHandlerMiddleware)
 
 app.use('*', (req, res) => {
   res.status(404).json({ msg: 'not found' })

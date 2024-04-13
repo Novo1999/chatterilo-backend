@@ -19,7 +19,12 @@ const userSchema = new Schema({
     type: Date,
     default: new Date(),
   },
-  friends: [{ type: Schema.Types.ObjectId, ref: 'User' }],
+  friends: [
+    {
+      id: String,
+      isMessaging: { type: Boolean, default: false },
+    },
+  ],
   friendRequests: {
     sent: [{ type: Schema.Types.ObjectId, ref: 'User' }],
     received: [{ type: Schema.Types.ObjectId, ref: 'User' }],
