@@ -23,6 +23,7 @@ export const doSocketOperations = (socket, connectedUsers, io) => {
     console.log(connectedUsers)
   })
 
+  // when user disconnects
   socket.on('connected-user-dc', (data) => {
     console.log('user-dc', data)
     const existingUserIndex = connectedUsers.findIndex(
@@ -41,7 +42,7 @@ export const doSocketOperations = (socket, connectedUsers, io) => {
     io.emit('rec_message', 5)
   })
 
-  // invalidates the other user
+  // invalidates the other user after some action
   emitInvalidateUser(socket, io)
 
   // friend requests

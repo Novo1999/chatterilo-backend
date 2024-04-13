@@ -4,6 +4,7 @@ import {
   cancelFriendRequest,
   declineFriendRequest,
   sendFriendRequest,
+  unfriend,
 } from '../controller/friendController.js'
 import { verifyUser } from '../middleware/authMiddleware.js'
 const router = Router()
@@ -27,5 +28,6 @@ router.patch(
   verifyUser,
   declineFriendRequest
 )
+router.patch('/friend/unfriend/:id', verifyUser, unfriend)
 
 export default router
