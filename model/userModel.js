@@ -22,7 +22,6 @@ const userSchema = new Schema({
   friends: [
     {
       id: String,
-      isMessaging: { type: Boolean, default: false },
     },
   ],
   friendRequests: {

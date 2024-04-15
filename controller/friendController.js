@@ -1,6 +1,7 @@
 import { StatusCodes } from 'http-status-codes'
 import { Types } from 'mongoose'
 import { BadRequestError, NotFoundError } from '../errors/customErrors.js'
+import Conversation from '../model/conversationModel.js'
 import User from '../model/userModel.js'
 
 export const sendFriendRequest = async (req, res) => {
@@ -185,10 +186,13 @@ export const unfriend = async (req, res) => {
     {
       $pull: {
         friends: { id },
+        conversations: id,
       },
     },
     { new: true }
   )
+  // delete the conversation
+  await Conversation.findOneAndDelete({ currentUserId: userId })
 
   // remove the friend id from the senders sent array of friend requests
   const updatedSender = await User.findOneAndUpdate(
@@ -204,7 +208,7 @@ export const unfriend = async (req, res) => {
   res.status(StatusCodes.OK).json({ updatedUser, updatedSender })
 }
 
-export const addToMessaging = async (req, res) => {
+export const addToConversation = async (req, res) => {
   const { id } = req.params
   const userId = req.user._id
 
@@ -215,22 +219,15 @@ export const addToMessaging = async (req, res) => {
       .json({ error: 'Invalid user ID' })
   }
 
-  const user = await User.findOne({ _id: userId })
+  const user = await User.findOneAndUpdate(
+    { _id: userId, conversations: { $ne: id } },
+    { $addToSet: { conversations: id } },
+    { new: true }
+  )
 
   if (!user) {
     throw new NotFoundError('No user found')
   }
 
-  // remove the friend id from the current logged in users received array of friend requests
-  const updatedUser = await User.findOneAndUpdate(
-    { _id: userId, 'friends.id': id }, // Look for the user with given userId and friends with matching id
-    {
-      $set: {
-        'friends.$.isMessaging': true, // Update the isMessaging field of the matching friend
-      },
-    },
-    { new: true }
-  )
-
-  res.status(StatusCodes.OK).json({ updatedUser })
+  res.status(StatusCodes.OK).json({ updatedUser: user })
 }
