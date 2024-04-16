@@ -8,4 +8,10 @@ const createSecretToken = async (id) => {
   })
 }
 
+// export const createRefreshToken = async (id) => {
+//   return jwt.sign({ id }, process.env.TOKEN_REFRESH, {
+//     expiresIn: '1d',
+//   })
+// }
+
 export default createSecretToken

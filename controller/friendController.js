@@ -211,6 +211,9 @@ export const unfriend = async (req, res) => {
 export const addToConversation = async (req, res) => {
   const { id } = req.params
   const userId = req.user._id
+  const { recipientId } = req.body
+
+  console.log('🚀 ~ addToConversation ~ recipientId:', recipientId)
 
   // Check if id is a valid ObjectId
   if (!Types.ObjectId.isValid(id)) {
@@ -218,16 +221,23 @@ export const addToConversation = async (req, res) => {
       .status(StatusCodes.BAD_REQUEST)
       .json({ error: 'Invalid user ID' })
   }
+  const userById = await User.findById(userId)
 
-  const user = await User.findOneAndUpdate(
-    { _id: userId, conversations: { $ne: id } },
-    { $addToSet: { conversations: id } },
-    { new: true }
+  const hasRecipient = userById.conversations.findIndex(
+    (id) => id === recipientId
   )
 
-  if (!user) {
-    throw new NotFoundError('No user found')
-  }
+  if (hasRecipient !== -1) {
+    return res
+      .status(StatusCodes.OK)
+      .json({ msg: 'Conversation Already exists' })
+  } else {
+    const user = await User.findOneAndUpdate(
+      { _id: userId, conversations: { $ne: recipientId } },
+      { $addToSet: { conversations: recipientId } },
+      { new: true }
+    )
 
-  res.status(StatusCodes.OK).json({ updatedUser: user })
+    return res.status(StatusCodes.OK).json({ updatedUser: user })
+  }
 }
