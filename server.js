@@ -55,6 +55,7 @@ const io = new Server(server, {
 })
 
 let connectedUsers = []
+console.log(connectedUsers)
 io.on('connect', (socket) => {
   console.log(`User ${socket.id} connected`)
 

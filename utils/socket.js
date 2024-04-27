@@ -39,7 +39,7 @@ export const doSocketOperations = (socket, connectedUsers, io) => {
   })
 
   socket.on('message', (_) => {
-    io.emit('rec_message', 5)
+    // io.emit('rec_message', 5)
   })
 
   // invalidates the other user after some action

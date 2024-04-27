@@ -13,6 +13,7 @@ export const messageSchema = new Schema({
     type: Date,
     default: Date.now,
   },
+  reaction: String,
 })
 
 export default model('Message', messageSchema)

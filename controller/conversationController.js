@@ -57,14 +57,14 @@ export const getConversation = async (req, res) => {
     throw new UnauthenticatedError('User not authenticated')
   }
 
-  const user = await User.findById(userId)
-
-  if (!user.conversations.includes(id)) {
-    throw new BadRequestError('Not the users conversation')
-  }
-
   // get the conversation
   const conversation = await Conversation.findById(id)
+
+  const user = await User.findById(userId)
+
+  if (!user.conversations.includes(conversation.recipientUserId)) {
+    throw new BadRequestError('Not the users conversation')
+  }
 
   if (!conversation) {
     throw new NotFoundError('Conversation not found')
