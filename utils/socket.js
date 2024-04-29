@@ -38,8 +38,33 @@ export const doSocketOperations = (socket, connectedUsers, io) => {
     console.log('USERS', connectedUsers)
   })
 
-  socket.on('message', (_) => {
+  socket.on('message', (data) => {
     // io.emit('rec_message', 5)
+    console.log(data)
+
+    if (data.matchedConnectedUser) {
+      console.log('🚀 ~ socket.on ~ matchedUser:', data.matchedConnectedUser)
+      io.to(data.matchedConnectedUser.socketId).emit('new_message', {
+        from: data.senderId,
+        message: data.message,
+      })
+    }
+  })
+
+  socket.on('user_typing', (data) => {
+    if (data.matchedConnectedUser) {
+      io.to(data.matchedConnectedUser.socketId).emit('typing', {
+        senderId: data.senderId,
+      })
+    }
+  })
+
+  socket.on('user_not_typing', (data) => {
+    if (data.matchedConnectedUser) {
+      io.to(data.matchedConnectedUser.socketId).emit('not_typing', {
+        senderId: data.senderId,
+      })
+    }
   })
 
   // invalidates the other user after some action
