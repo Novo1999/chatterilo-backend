@@ -78,28 +78,24 @@ export const login = async (req, res) => {
   })
 }
 
-export const logout = (req, res) => {
-  res.cookie('token', 'logout', {
+export const logout = async (req, res) => {
+  await res.cookie('token', 'logout', {
     httpOnly: true,
-    expires: new Date(Date.now()),
   })
+  await res.clearCookie('refreshToken')
   res.status(StatusCodes.OK).json({ msg: 'user logged out!' })
 }
 
 export const refreshToken = async (req, res) => {
   const refreshToken = req.cookies['refreshToken']
-  console.log('🚀 ~ refreshToken ~ refreshToken:', refreshToken)
   if (!refreshToken) {
     return res.status(401).send('Access Denied. No refresh token provided.')
   }
 
   try {
     const decoded = jwt.verify(refreshToken, process.env.TOKEN_REFRESH)
-    console.log('🤣 ~ refreshToken ~ decoded:', decoded)
 
-    const accessToken = jwt.sign({ id: decoded.id }, process.env.TOKEN, {
-      expiresIn: '1h',
-    })
+    const accessToken = await createSecretToken(decoded.id)
 
     await res.cookie('token', accessToken, {
       httpOnly: true,
@@ -114,7 +110,6 @@ export const refreshToken = async (req, res) => {
 
     return res.status(200).json({ accessToken })
   } catch (error) {
-    console.log('🚀 ~ refreshToken ~ error:', error)
     return res.status(400).send('Invalid refresh token.')
   }
 }

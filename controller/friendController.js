@@ -213,8 +213,6 @@ export const addToConversation = async (req, res) => {
   const userId = req.user._id
   const { recipientId } = req.body
 
-  console.log('🚀 ~ addToConversation ~ recipientId:', recipientId)
-
   // Check if id is a valid ObjectId
   if (!Types.ObjectId.isValid(id)) {
     return res
