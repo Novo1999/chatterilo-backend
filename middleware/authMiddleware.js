@@ -6,12 +6,15 @@ configDotenv()
 
 export const verifyUser = async (req, res, next) => {
   const token = req.cookies.token
+  console.log('🌵 ~ verifyUser ~ token:', token)
 
   if (!token) {
     return res.status(StatusCodes.UNAUTHORIZED).json({ error: 'Unauthorized' })
   }
 
   jwt.verify(token, process.env.TOKEN, async (err, data) => {
+    console.log('🚀 ~ jwt.verify ~ data:', data)
+
     if (err) {
       return res.status(401).json({ error: 'Unauthorized' })
     } else {
