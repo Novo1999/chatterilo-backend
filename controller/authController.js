@@ -5,7 +5,7 @@ import { BadRequestError } from '../errors/customErrors.js'
 import User from '../model/userModel.js'
 import createSecretToken, { createRefreshToken } from '../utils/tokenUtils.js'
 
-const oneDay = 1000 * 60 * 60 * 24
+const ONE_MONTH = 30 * 24 * 60 * 60 * 1000
 
 export const signUp = async (req, res) => {
   const { email, password, username, createdAt } = req.body
@@ -20,7 +20,6 @@ export const signUp = async (req, res) => {
   const token = await createSecretToken(user._id)
 
   res.cookie('token', token, {
-    withCredentials: true,
     httpOnly: true,
   })
 
@@ -62,13 +61,13 @@ export const login = async (req, res) => {
   await res.cookie('token', token, {
     httpOnly: true,
     secure: true,
-    sameSite: 'None',
+    maxAge: ONE_MONTH,
   })
 
   await res.cookie('refreshToken', refreshToken, {
     httpOnly: true,
     secure: true,
-    sameSite: 'None',
+    maxAge: ONE_MONTH,
   })
 
   return res.status(StatusCodes.CREATED).json({
@@ -100,12 +99,12 @@ export const refreshToken = async (req, res) => {
     await res.cookie('token', accessToken, {
       httpOnly: true,
       secure: true,
-      sameSite: 'None',
+      maxAge: ONE_MONTH,
     })
     await res.cookie('refreshToken', refreshToken, {
       httpOnly: true,
       secure: true,
-      sameSite: 'None',
+      maxAge: ONE_MONTH,
     })
 
     return res.status(200).json({ accessToken })

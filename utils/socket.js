@@ -1,3 +1,4 @@
+import moment from 'moment'
 import { emitInvalidateUser } from './invalideUserUtil.js'
 
 export const doSocketOperations = (socket, connectedUsers, io) => {
@@ -38,31 +39,31 @@ export const doSocketOperations = (socket, connectedUsers, io) => {
     console.log('USERS', connectedUsers)
   })
 
-  socket.on('message', (data) => {
-    // io.emit('rec_message', 5)
-    console.log(data)
+  socket.on('message', ({ matchedConnectedUser, senderId, message }) => {
+    const currentDate = moment().format('YYYY-MM-DD hh:mm A')
 
-    if (data.matchedConnectedUser) {
-      console.log('🚀 ~ socket.on ~ matchedUser:', data.matchedConnectedUser)
-      io.to(data.matchedConnectedUser.socketId).emit('new_message', {
-        from: data.senderId,
-        message: data.message,
+    if (matchedConnectedUser) {
+      console.log('🚀 ~ socket.on ~ matchedUser:', matchedConnectedUser)
+      io.to(matchedConnectedUser.socketId).emit('new_message', {
+        sender: senderId,
+        content: message,
+        timestamp: currentDate,
       })
     }
   })
 
-  socket.on('user_typing', (data) => {
-    if (data.matchedConnectedUser) {
-      io.to(data.matchedConnectedUser.socketId).emit('typing', {
-        senderId: data.senderId,
+  socket.on('user_typing', ({ matchedConnectedUser, senderId }) => {
+    if (matchedConnectedUser) {
+      io.to(matchedConnectedUser.socketId).emit('typing', {
+        senderId,
       })
     }
   })
 
-  socket.on('user_not_typing', (data) => {
-    if (data.matchedConnectedUser) {
-      io.to(data.matchedConnectedUser.socketId).emit('not_typing', {
-        senderId: data.senderId,
+  socket.on('user_not_typing', ({ matchedConnectedUser, senderId }) => {
+    if (matchedConnectedUser) {
+      io.to(matchedConnectedUser.socketId).emit('not_typing', {
+        senderId,
       })
     }
   })

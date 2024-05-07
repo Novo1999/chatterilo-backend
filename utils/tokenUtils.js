@@ -4,13 +4,13 @@ configDotenv()
 
 const createSecretToken = async (id) => {
   return jwt.sign({ id }, process.env.TOKEN, {
-    expiresIn: '1h',
+    expiresIn: '1d',
   })
 }
 
 export const createRefreshToken = async (id) => {
   return jwt.sign({ id }, process.env.TOKEN_REFRESH, {
-    expiresIn: '1d',
+    expiresIn: '2d',
   })
 }
 
