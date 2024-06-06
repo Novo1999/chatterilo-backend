@@ -4,7 +4,7 @@ import User from '../model/userModel.js'
 
 export const getUser = async (req, res) => {
   const { id } = req.params
-  const user = await User.findOne({ _id: id })
+  const user = await User.findOne({ _id: id }).lean()
   if (!user) {
     throw new BadRequestError('No user found')
   }
@@ -18,7 +18,7 @@ export const searchUser = async (req, res) => {
   const users = await User.find({
     _id: { $ne: req.user._id },
     username: { $regex: regex },
-  })
+  }).lean()
   if (users.length === 0) {
     return res.json([])
   }
@@ -29,7 +29,7 @@ export const searchUser = async (req, res) => {
 }
 
 export const getCurrentUser = async (req, res) => {
-  const user = await User.findOne({ _id: req.user._id })
+  const user = await User.findOne({ _id: req.user._id }).lean()
   const userWithoutPassword = user.toJSON()
   res.status(StatusCodes.OK).json({ user: userWithoutPassword })
 }

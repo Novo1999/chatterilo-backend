@@ -1,11 +1,13 @@
 import { Schema, model } from 'mongoose'
-import { messageSchema } from './messageModel.js'
 
 const conversationSchema = new Schema({
   conversationId: {
     type: Schema.Types.ObjectId,
   },
-  messages: [messageSchema],
+  messages: {
+    type: Schema.Types.ObjectId,
+    ref: 'Message',
+  },
 
   currentUserId: {
     type: Schema.Types.ObjectId,

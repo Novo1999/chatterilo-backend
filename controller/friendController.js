@@ -3,6 +3,7 @@ import { Types } from 'mongoose'
 import { BadRequestError, NotFoundError } from '../errors/customErrors.js'
 import Conversation from '../model/conversationModel.js'
 import User from '../model/userModel.js'
+import checkValidMongoUtil from '../utils/validMongoUtil.js'
 
 export const sendFriendRequest = async (req, res) => {
   const userId = req.user._id
@@ -214,11 +215,7 @@ export const addToConversation = async (req, res) => {
   const { recipientId } = req.body
 
   // Check if id is a valid ObjectId
-  if (!Types.ObjectId.isValid(id)) {
-    return res
-      .status(StatusCodes.BAD_REQUEST)
-      .json({ error: 'Invalid user ID' })
-  }
+  checkValidMongoUtil(res, id)
   const userById = await User.findById(userId)
 
   const hasRecipient = userById.conversations.findIndex(

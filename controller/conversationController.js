@@ -7,6 +7,7 @@ import {
 } from '../errors/customErrors.js'
 import Conversation from '../model/conversationModel.js'
 import User from '../model/userModel.js'
+import checkValidMongoUtil from '../utils/validMongoUtil.js'
 
 export const createConversation = async (req, res) => {
   const { id: recipientId } = req.params
@@ -16,11 +17,7 @@ export const createConversation = async (req, res) => {
     throw new UnauthenticatedError('User not authenticated')
   }
 
-  if (!Types.ObjectId.isValid(recipientId)) {
-    return res
-      .status(StatusCodes.BAD_REQUEST)
-      .json({ error: 'Invalid user ID' })
-  }
+  checkValidMongoUtil(res, recipientId)
 
   const userById = await User.findById(userId)
 
@@ -47,20 +44,16 @@ export const getConversation = async (req, res) => {
   const { id } = req.params
   const userId = req.user._id
 
-  if (!Types.ObjectId.isValid(id)) {
-    return res
-      .status(StatusCodes.BAD_REQUEST)
-      .json({ error: 'Invalid user ID' })
-  }
+  checkValidMongoUtil(res, id)
 
   if (!userId) {
     throw new UnauthenticatedError('User not authenticated')
   }
 
   // get the conversation
-  const conversation = await Conversation.findById(id)
+  const conversation = await Conversation.findById(id).lean()
 
-  const user = await User.findById(userId)
+  const user = await User.findById(userId).lean()
 
   if (!user.conversations.includes(conversation.recipientUserId)) {
     throw new BadRequestError('Not the users conversation')
@@ -80,7 +73,13 @@ export const getConversations = async (req, res) => {
     throw new UnauthenticatedError('User not authenticated')
   }
 
-  const conversations = await Conversation.find({ currentUserId: userId })
+  const conversations = await Conversation.find({
+    currentUserId: userId,
+  }).lean()
 
   res.status(StatusCodes.OK).json(conversations)
+}
+
+export const saveMessageToConversation = async (req, res) => {
+  const { conversationId, messageObj } = req.body
 }
