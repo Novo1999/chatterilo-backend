@@ -42,6 +42,7 @@ export const createConversation = async (req, res) => {
 export const getConversation = async (req, res) => {
   const { id } = req.params
   const userId = req.user._id
+  console.log('🚀 ~ getConversation ~ userId:', userId)
 
   checkValidMongoUtil(res, id)
 
@@ -50,9 +51,9 @@ export const getConversation = async (req, res) => {
   }
 
   // get the conversation
-  const conversation = await Conversation.findById(id).lean()
+  const conversation = await Conversation.findById(id)
 
-  const user = await User.findById(userId).lean()
+  const user = await User.findById(userId)
 
   if (!user.conversations.includes(conversation.recipientUserId)) {
     throw new BadRequestError('Not the users conversation')
@@ -67,6 +68,7 @@ export const getConversation = async (req, res) => {
 
 export const getConversations = async (req, res) => {
   const userId = req.user._id
+  console.log('🚀 ~ getConversations ~ userId:', userId)
 
   if (!userId) {
     throw new UnauthenticatedError('User not authenticated')
@@ -74,7 +76,7 @@ export const getConversations = async (req, res) => {
 
   const conversations = await Conversation.find({
     currentUserId: userId,
-  }).lean()
+  })
 
   res.status(StatusCodes.OK).json(conversations)
 }
