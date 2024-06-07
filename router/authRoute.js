@@ -1,10 +1,11 @@
 import { Router } from 'express'
+
 import {
   login,
   logout,
   refreshToken,
   signUp,
-} from '../controller/AuthController.js'
+} from '../controller/authController.js'
 import { getCurrentUser } from '../controller/userController.js'
 import { verifyUser } from '../middleware/authMiddleware.js'
 const router = Router()
