@@ -29,7 +29,7 @@ export const searchUser = async (req, res) => {
 }
 
 export const getCurrentUser = async (req, res) => {
-  const user = await User.findOne({ _id: req.user._id }).lean()
+  const user = await User.findOne({ _id: req.user._id })
   const userWithoutPassword = user.toJSON()
   res.status(StatusCodes.OK).json({ user: userWithoutPassword })
 }
