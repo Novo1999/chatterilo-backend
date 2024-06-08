@@ -1,22 +1,18 @@
 import { Schema, model } from 'mongoose'
 
-export const messageSchema = new Schema({
-  messageId: {
-    type: Schema.Types.ObjectId,
+export const messageSchema = new Schema(
+  {
+    sender: {
+      type: Schema.Types.ObjectId,
+      ref: 'User',
+    },
+    content: String,
+    reaction: {
+      type: String,
+      default: '',
+    },
   },
-  sender: {
-    type: Schema.Types.ObjectId,
-    ref: 'User',
-  },
-  content: String,
-  timestamp: {
-    type: Date,
-    default: Date.now,
-  },
-  reaction: {
-    type: String,
-    default: '',
-  },
-})
+  { timestamps: true }
+)
 
 export default model('Message', messageSchema)

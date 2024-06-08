@@ -4,17 +4,19 @@ const conversationSchema = new Schema({
   conversationId: {
     type: Schema.Types.ObjectId,
   },
-  messages: {
-    type: Schema.Types.ObjectId,
-    ref: 'Message',
-  },
+  messages: [
+    {
+      type: Schema.Types.ObjectId,
+      ref: 'Message',
+    },
+  ],
 
   currentUserId: {
     type: Schema.Types.ObjectId,
     ref: 'User',
   },
 
-  recipientUserId: {
+  recipientUser: {
     type: Schema.Types.ObjectId,
     ref: 'User',
   },

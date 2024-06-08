@@ -5,6 +5,7 @@ import {
   UnauthenticatedError,
 } from '../errors/customErrors.js'
 import Conversation from '../model/conversationModel.js'
+import Message from '../model/messageModel.js'
 import User from '../model/userModel.js'
 import checkValidMongoUtil from '../utils/validMongoUtil.js'
 
@@ -39,6 +40,7 @@ export const createConversation = async (req, res) => {
   }
 }
 
+// for getting a single conversation
 export const getConversation = async (req, res) => {
   const { id } = req.params
   const userId = req.user._id
@@ -52,10 +54,19 @@ export const getConversation = async (req, res) => {
 
   // get the conversation
   const conversation = await Conversation.findById(id)
+    .populate({
+      path: 'messages',
+      model: Message,
+    })
+    .populate({
+      path: 'recipientUser',
+      model: User,
+    })
+  console.log('🚀 ~ getConversation ~ conversation:', conversation)
 
   const user = await User.findById(userId)
 
-  if (!user.conversations.includes(conversation.recipientUserId)) {
+  if (!user.conversations.includes(conversation?.recipientUser?._id)) {
     throw new BadRequestError('Not the users conversation')
   }
 
@@ -79,8 +90,4 @@ export const getConversations = async (req, res) => {
   })
 
   res.status(StatusCodes.OK).json(conversations)
-}
-
-export const saveMessageToConversation = async (req, res) => {
-  const { conversationId, messageObj } = req.body
 }

@@ -1,4 +1,5 @@
 import moment from 'moment'
+import { sendMessage } from '../controller/messageController.js'
 import { emitInvalidateUser } from './invalideUserUtil.js'
 
 export const doSocketOperations = (socket, connectedUsers, io) => {
@@ -39,7 +40,8 @@ export const doSocketOperations = (socket, connectedUsers, io) => {
     console.log('USERS', connectedUsers)
   })
 
-  socket.on('message', ({ matchedConnectedUser, senderId, message }) => {
+  // send message function
+  socket.on('message', async ({ matchedConnectedUser, senderId, message }) => {
     const currentDate = moment().format('YYYY-MM-DD hh:mm A')
 
     if (matchedConnectedUser) {
@@ -50,8 +52,12 @@ export const doSocketOperations = (socket, connectedUsers, io) => {
         timestamp: currentDate,
       })
     }
+    // this will save the message in db
+    const response = await sendMessage(message, senderId)
+    console.log('🚀 ~ socket.on ~ status:', response.status)
   })
 
+  // send user typing socket event
   socket.on('user_typing', ({ matchedConnectedUser, senderId }) => {
     if (matchedConnectedUser) {
       io.to(matchedConnectedUser.socketId).emit('typing', {
@@ -60,6 +66,7 @@ export const doSocketOperations = (socket, connectedUsers, io) => {
     }
   })
 
+  // send user not typing socket event
   socket.on('user_not_typing', ({ matchedConnectedUser, senderId }) => {
     if (matchedConnectedUser) {
       io.to(matchedConnectedUser.socketId).emit('not_typing', {
