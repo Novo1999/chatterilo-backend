@@ -7,7 +7,7 @@ import {
 import Conversation from '../model/conversationModel.js'
 import Message from '../model/messageModel.js'
 import User from '../model/userModel.js'
-import checkValidMongoUtil from '../utils/validMongoUtil.js'
+import checkValidMongoIdUtil from '../utils/validMongoUtil.js'
 
 export const createConversation = async (req, res) => {
   const { id: recipientId } = req.params
@@ -17,7 +17,7 @@ export const createConversation = async (req, res) => {
     throw new UnauthenticatedError('User not authenticated')
   }
 
-  checkValidMongoUtil(res, recipientId)
+  checkValidMongoIdUtil(res, recipientId)
 
   const userById = await User.findById(userId)
 
@@ -33,7 +33,7 @@ export const createConversation = async (req, res) => {
     const conversation = await Conversation.create({
       messages: [],
       currentUserId: userId,
-      recipientUserId: recipientId,
+      recipientUser: recipientId,
     })
 
     return res.status(StatusCodes.OK).json(conversation)
@@ -46,7 +46,7 @@ export const getConversation = async (req, res) => {
   const userId = req.user._id
   console.log('🚀 ~ getConversation ~ userId:', userId)
 
-  checkValidMongoUtil(res, id)
+  checkValidMongoIdUtil(res, id)
 
   if (!userId) {
     throw new UnauthenticatedError('User not authenticated')

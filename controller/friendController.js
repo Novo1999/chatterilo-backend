@@ -3,7 +3,7 @@ import { Types } from 'mongoose'
 import { BadRequestError, NotFoundError } from '../errors/customErrors.js'
 import Conversation from '../model/conversationModel.js'
 import User from '../model/userModel.js'
-import checkValidMongoUtil from '../utils/validMongoUtil.js'
+import checkValidMongoIdUtil from '../utils/validMongoUtil.js'
 
 export const sendFriendRequest = async (req, res) => {
   const userId = req.user._id
@@ -88,14 +88,11 @@ export const cancelFriendRequest = async (req, res) => {
 
 export const declineFriendRequest = async (req, res) => {
   const { id } = req.params
+  console.log('🚀 ~ declineFriendRequest ~ id:', id)
   const userId = req.user._id
+  console.log('🚀 ~ declineFriendRequest ~ userId:', userId)
 
-  // Check if id is a valid ObjectId
-  if (!Types.ObjectId.isValid(id)) {
-    return res
-      .status(StatusCodes.BAD_REQUEST)
-      .json({ error: 'Invalid user ID' })
-  }
+  checkValidMongoIdUtil(res, id)
 
   const user = await User.findOne({ _id: userId })
 
@@ -122,14 +119,11 @@ export const declineFriendRequest = async (req, res) => {
 
 export const acceptFriendRequest = async (req, res) => {
   const { id } = req.params
+  console.log('🚀 ~ acceptFriendRequest ~ id:', id)
   const userId = req.user._id
+  console.log('🚀 ~ acceptFriendRequest ~ userId:', userId)
 
-  // Check if id is a valid ObjectId
-  if (!Types.ObjectId.isValid(id)) {
-    return res
-      .status(StatusCodes.BAD_REQUEST)
-      .json({ error: 'Invalid user ID' })
-  }
+  checkValidMongoIdUtil(res, id)
 
   const user = await User.findOne({ _id: userId })
 
@@ -143,7 +137,7 @@ export const acceptFriendRequest = async (req, res) => {
     {
       $pull: { 'friendRequests.received': id },
       $push: {
-        friends: { id, isMessaging: false },
+        friends: { _id: id },
       },
     },
     { new: true }
@@ -155,7 +149,7 @@ export const acceptFriendRequest = async (req, res) => {
     {
       $pull: { 'friendRequests.sent': userId },
       $push: {
-        friends: { id: userId },
+        friends: { _id: userId },
       },
     },
     { new: true }
@@ -169,11 +163,7 @@ export const unfriend = async (req, res) => {
   const userId = req.user._id
 
   // Check if id is a valid ObjectId
-  if (!Types.ObjectId.isValid(id)) {
-    return res
-      .status(StatusCodes.BAD_REQUEST)
-      .json({ error: 'Invalid user ID' })
-  }
+  checkValidMongoIdUtil(res, id)
 
   const user = await User.findOne({ _id: userId })
 
@@ -186,7 +176,7 @@ export const unfriend = async (req, res) => {
     { _id: userId },
     {
       $pull: {
-        friends: { id },
+        friends: id,
         conversations: id,
       },
     },
@@ -215,7 +205,7 @@ export const addToConversation = async (req, res) => {
   const { recipientId } = req.body
 
   // Check if id is a valid ObjectId
-  checkValidMongoUtil(res, id)
+  checkValidMongoIdUtil(res, id)
   const userById = await User.findById(userId)
 
   const hasRecipient = userById.conversations.findIndex(
