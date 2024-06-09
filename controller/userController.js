@@ -5,6 +5,7 @@ import User from '../model/userModel.js'
 
 export const getUser = async (req, res) => {
   const { id } = req.params
+  console.log('🚀 ~ getUser ~ id:', id)
   const user = await User.findOne({ _id: id })
   if (!user) {
     throw new BadRequestError('No user found')

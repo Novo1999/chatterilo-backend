@@ -11,7 +11,7 @@ const conversationSchema = new Schema({
     },
   ],
 
-  currentUserId: {
+  currentUser: {
     type: Schema.Types.ObjectId,
     ref: 'User',
   },

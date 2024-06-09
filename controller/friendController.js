@@ -183,14 +183,14 @@ export const unfriend = async (req, res) => {
     { new: true }
   )
   // delete the conversation
-  await Conversation.findOneAndDelete({ currentUserId: userId })
+  await Conversation.findOneAndDelete({ currentUser: userId })
 
   // remove the friend id from the senders sent array of friend requests
   const updatedSender = await User.findOneAndUpdate(
     { _id: id },
     {
       $pull: {
-        friends: { id: userId },
+        friends: userId,
       },
     },
     { new: true }
@@ -208,18 +208,18 @@ export const addToConversation = async (req, res) => {
   checkValidMongoIdUtil(res, id)
   const userById = await User.findById(userId)
 
-  const hasRecipient = userById.conversations.findIndex(
+  const hasRecipientInConversation = userById.conversations.findIndex(
     (id) => id === recipientId
   )
 
-  if (hasRecipient !== -1) {
+  if (hasRecipientInConversation !== -1) {
     return res
       .status(StatusCodes.OK)
       .json({ msg: 'Conversation Already exists' })
   } else {
     const user = await User.findOneAndUpdate(
-      { _id: userId, conversations: { $ne: recipientId } },
-      { $addToSet: { conversations: recipientId } },
+      { _id: userId, conversations: { $ne: id } },
+      { $addToSet: { conversations: id } },
       { new: true }
     )
 

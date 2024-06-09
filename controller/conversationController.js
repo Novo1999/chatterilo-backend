@@ -11,32 +11,49 @@ import checkValidMongoIdUtil from '../utils/validMongoUtil.js'
 
 export const createConversation = async (req, res) => {
   const { id: recipientId } = req.params
+
   const userId = req.user._id
 
   if (!userId) {
     throw new UnauthenticatedError('User not authenticated')
   }
-
   checkValidMongoIdUtil(res, recipientId)
 
-  const userById = await User.findById(userId)
+  // check if there is a conv with this recipientUser or currentUser
 
-  const hasRecipient = userById.conversations.findIndex(
-    (id) => id.toString() === recipientId
-  )
+  const existingConversation = await Conversation.findOne({
+    $or: [
+      {
+        currentUser: recipientId,
+      },
+      {
+        recipientUser: recipientId,
+      },
+    ],
+  })
 
-  if (hasRecipient !== -1) {
-    return res
-      .status(StatusCodes.OK)
-      .json({ msg: 'Conversation Already exists' })
+  if (existingConversation) {
+    return res.status(StatusCodes.OK).json(existingConversation)
   } else {
-    const conversation = await Conversation.create({
-      messages: [],
-      currentUserId: userId,
-      recipientUser: recipientId,
-    })
+    const userById = await User.findById(userId)
 
-    return res.status(StatusCodes.OK).json(conversation)
+    const hasRecipient = userById.conversations.findIndex(
+      (id) => id.toString() === recipientId
+    )
+
+    if (hasRecipient !== -1) {
+      return res
+        .status(StatusCodes.OK)
+        .json({ msg: 'Conversation Already exists' })
+    } else {
+      const conversation = await Conversation.create({
+        messages: [],
+        currentUser: userId,
+        recipientUser: recipientId,
+      })
+
+      return res.status(StatusCodes.OK).json(conversation)
+    }
   }
 }
 
@@ -86,7 +103,10 @@ export const getConversations = async (req, res) => {
   }
 
   const conversations = await Conversation.find({
-    currentUserId: userId,
+    currentUser: userId,
+  }).populate({
+    path: 'recipientUser',
+    model: User,
   })
 
   res.status(StatusCodes.OK).json(conversations)

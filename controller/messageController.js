@@ -11,7 +11,7 @@ export const sendMessage = async (message, senderId) => {
   // find conversation using sender id and push the id to the messages array
   const matchedConversation = await Conversation.findOneAndUpdate(
     {
-      currentUserId: senderId,
+      currentUser: senderId,
     },
     { $push: { messages: _id } },
     { new: true }
