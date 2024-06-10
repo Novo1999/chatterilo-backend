@@ -59,6 +59,8 @@ export const doSocketOperations = (socket, connectedUsers, io) => {
 
   // send user typing socket event
   socket.on('user_typing', ({ matchedConnectedUser, senderId }) => {
+    console.log('🚀 ~ socket.on ~ senderId:', senderId)
+    console.log('🚀 ~ socket.on ~ matchedConnectedUser:', matchedConnectedUser)
     if (matchedConnectedUser) {
       io.to(matchedConnectedUser.socketId).emit('typing', {
         senderId,
