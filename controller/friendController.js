@@ -1,5 +1,4 @@
 import { StatusCodes } from 'http-status-codes'
-import { Types } from 'mongoose'
 import { BadRequestError, NotFoundError } from '../errors/customErrors.js'
 import Conversation from '../model/conversationModel.js'
 import User from '../model/userModel.js'
@@ -21,6 +20,8 @@ export const sendFriendRequest = async (req, res) => {
   if (!recipient) {
     return res.status(404).json({ error: 'Recipient user not found' })
   }
+
+  console.log(req.user)
 
   // Check if the recipient is already a friend or if a friend request has been sent before
   if (

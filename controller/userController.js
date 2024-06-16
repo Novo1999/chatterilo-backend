@@ -45,7 +45,6 @@ export const getCurrentUser = async (req, res) => {
       path: 'conversations',
       model: Conversation,
     })
-  console.log('🚀 ~ getCurrentUser ~ user:', user)
   const userWithoutPassword = user.toJSON()
   res.status(StatusCodes.OK).json({ user: userWithoutPassword })
 }

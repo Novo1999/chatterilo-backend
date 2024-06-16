@@ -1,9 +1,5 @@
 import { StatusCodes } from 'http-status-codes'
-import {
-  BadRequestError,
-  NotFoundError,
-  UnauthenticatedError,
-} from '../errors/customErrors.js'
+import { NotFoundError, UnauthenticatedError } from '../errors/customErrors.js'
 import Conversation from '../model/conversationModel.js'
 import Message from '../model/messageModel.js'
 import User from '../model/userModel.js'
@@ -50,6 +46,19 @@ export const createConversation = async (req, res) => {
         conversations: existingConversation._id,
       },
     })
+    await Conversation.findOneAndUpdate(
+      {
+        $or: [
+          { currentUser: userId },
+          {
+            recipientUser: userId,
+          },
+        ],
+      },
+      {
+        $push: { participants: userId, recipientUser: userId },
+      }
+    )
     return res.status(StatusCodes.OK).json(existingConversation)
   } else {
     const userById = await User.findById(userId)
@@ -67,6 +76,7 @@ export const createConversation = async (req, res) => {
         messages: [],
         currentUser: userId,
         recipientUser: recipientId,
+        participants: [userId],
       })
 
       return res.status(StatusCodes.OK).json(conversation)
@@ -107,7 +117,6 @@ export const getConversation = async (req, res) => {
 
 export const getConversations = async (req, res) => {
   const userId = req.user._id
-  console.log('🚀 ~ getConversations ~ userId:', userId)
 
   if (!userId) {
     throw new UnauthenticatedError('User not authenticated')
@@ -131,7 +140,10 @@ export const getConversations = async (req, res) => {
       path: 'currentUser',
       model: User,
     })
-  console.log('🚀 ~ getConversations ~ conversations:', conversations)
 
-  res.status(StatusCodes.OK).json(conversations)
+  const userParticipatedConversations = conversations.filter((conv) =>
+    conv.participants.includes(userId)
+  )
+
+  res.status(StatusCodes.OK).json(userParticipatedConversations)
 }
