@@ -5,85 +5,74 @@ import Message from '../model/messageModel.js'
 import User from '../model/userModel.js'
 import checkValidMongoIdUtil from '../utils/validMongoUtil.js'
 
+const checkIfConversationIdExistsInCurrentUser = async (
+  userId,
+  existingConversationId
+) => {
+  const user = await User.findById(userId)
+  const indexOfConversation = user.conversations.findIndex(
+    (conversationId) =>
+      conversationId.toString() === existingConversationId.toString()
+  )
+  if (indexOfConversation !== -1) {
+    return true
+  } else {
+    return false
+  }
+}
+
 export const createConversation = async (req, res) => {
-  const { id: recipientId } = req.params
+  const { id: receiverId } = req.params
 
-  const userId = req.user._id
+  const senderId = req.user._id
 
-  if (!userId) {
+  if (!senderId) {
     throw new UnauthenticatedError('User not authenticated')
   }
-  checkValidMongoIdUtil(res, recipientId)
+  checkValidMongoIdUtil(res, receiverId)
 
   // check if there is a conv with this recipientUser or currentUser
 
   const existingConversation = await Conversation.findOne({
     $or: [
       {
-        currentUser: recipientId,
+        participant1: receiverId,
       },
       {
-        recipientUser: recipientId,
+        participant2: receiverId,
       },
     ],
   })
+  const conversationId = existingConversation?._id
 
   if (existingConversation) {
-    const userById = await User.findById(userId)
-
-    const isConversationIdInUsersConversations =
-      userById.conversations.findIndex(
-        (conv) => conv._id === existingConversation._id
-      ) !== -1
-
-    if (isConversationIdInUsersConversations) {
+    const isConversationInCurrentUser =
+      await checkIfConversationIdExistsInCurrentUser(senderId, conversationId)
+    if (isConversationInCurrentUser) {
       throw new Error('This conversation already exists for the user')
+    } else {
+      await User.findByIdAndUpdate(senderId, {
+        $push: {
+          conversations: conversationId,
+        },
+      })
     }
-
+  } else {
+    const conversation = await Conversation.create({
+      messages: [],
+      participant1: senderId,
+      participant2: receiverId,
+    })
     // use the existing conversation
-    await User.findByIdAndUpdate(userId, {
+    await User.findByIdAndUpdate(senderId, {
       $push: {
-        conversations: existingConversation._id,
+        conversations: conversation._id,
       },
     })
-    await Conversation.findOneAndUpdate(
-      {
-        $or: [
-          { currentUser: userId },
-          {
-            recipientUser: userId,
-          },
-        ],
-      },
-      {
-        $push: { participants: userId, recipientUser: userId },
-      }
-    )
-    return res.status(StatusCodes.OK).json(existingConversation)
-  } else {
-    const userById = await User.findById(userId)
 
-    const hasRecipient = userById.conversations.findIndex(
-      (id) => id.toString() === recipientId
-    )
-
-    if (hasRecipient !== -1) {
-      return res
-        .status(StatusCodes.OK)
-        .json({ msg: 'Conversation Already exists' })
-    } else {
-      const conversation = await Conversation.create({
-        messages: [],
-        currentUser: userId,
-        recipientUser: recipientId,
-        participants: [userId],
-      })
-
-      return res.status(StatusCodes.OK).json(conversation)
-    }
+    return res.status(StatusCodes.OK).json(conversation)
   }
 }
-
 // for getting a single conversation
 export const getConversation = async (req, res) => {
   const { id } = req.params

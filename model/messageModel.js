@@ -6,7 +6,10 @@ export const messageSchema = new Schema(
       type: Schema.Types.ObjectId,
       ref: 'User',
     },
-    content: String,
+    message: {
+      type: String,
+      required: true,
+    },
     reaction: {
       type: String,
       default: '',

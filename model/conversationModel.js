@@ -12,19 +12,15 @@ const conversationSchema = new Schema({
     },
   ],
 
-  currentUser: {
+  participant1: {
     type: Schema.Types.ObjectId,
     ref: 'User',
     required: true,
   },
 
-  recipientUser: {
+  participant2: {
     type: Schema.Types.ObjectId,
     ref: 'User',
-    required: true,
-  },
-  participants: {
-    type: [String],
     required: true,
   },
 })
