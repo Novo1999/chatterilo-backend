@@ -17,7 +17,6 @@ export const verifyUser = async (req, res, next) => {
     } else {
       try {
         const user = await User.findById(data.id)
-        console.log('🚀 ~ jwt.verify ~ user:', user)
         if (user) {
           req.user = user
           next()

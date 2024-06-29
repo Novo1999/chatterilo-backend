@@ -2,6 +2,9 @@ import bcrypt from 'bcryptjs'
 import mongoose, { Schema } from 'mongoose'
 
 const userSchema = new Schema({
+  image: {
+    type: String,
+  },
   email: {
     type: String,
     required: true,

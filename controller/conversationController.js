@@ -31,7 +31,7 @@ export const createConversation = async (req, res) => {
   }
   checkValidMongoIdUtil(res, receiverId)
 
-  // check if there is a conv with this recipientUser or currentUser
+  // check if there is a conversation with this receiverId
 
   const existingConversation = await Conversation.findOne({
     $or: [
@@ -56,6 +56,7 @@ export const createConversation = async (req, res) => {
           conversations: conversationId,
         },
       })
+      return res.status(StatusCodes.OK).json(existingConversation)
     }
   } else {
     const conversation = await Conversation.create({
@@ -92,10 +93,13 @@ export const getConversation = async (req, res) => {
       model: Message,
     })
     .populate({
-      path: 'recipientUser',
+      path: 'participant1',
       model: User,
     })
-  console.log('🚀 ~ getConversation ~ conversation:', conversation)
+    .populate({
+      path: 'participant2',
+      model: User,
+    })
 
   if (!conversation) {
     throw new NotFoundError('Conversation not found')
@@ -114,25 +118,24 @@ export const getConversations = async (req, res) => {
   const conversations = await Conversation.find({
     $or: [
       {
-        currentUser: userId,
+        participant1: userId,
       },
       {
-        recipientUser: userId,
+        participant2: userId,
       },
     ],
   })
     .populate({
-      path: 'recipientUser',
+      path: 'participant1',
       model: User,
+      select: ['username', '_id', 'image'], // only populate these fields for return
     })
     .populate({
-      path: 'currentUser',
+      path: 'participant2',
       model: User,
+      select: ['username', '_id', 'image'], // only populate these fields for return
     })
+    .lean()
 
-  const userParticipatedConversations = conversations.filter((conv) =>
-    conv.participants.includes(userId)
-  )
-
-  res.status(StatusCodes.OK).json(userParticipatedConversations)
+  res.status(StatusCodes.OK).json(conversations)
 }

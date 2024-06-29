@@ -199,31 +199,3 @@ export const unfriend = async (req, res) => {
 
   res.status(StatusCodes.OK).json({ updatedUser, updatedSender })
 }
-
-export const addToConversation = async (req, res) => {
-  const { id } = req.params
-  const userId = req.user._id
-  const { recipientId } = req.body
-
-  // Check if id is a valid ObjectId
-  checkValidMongoIdUtil(res, id)
-  const userById = await User.findById(userId)
-
-  const hasRecipientInConversation = userById.conversations.findIndex(
-    (id) => id === recipientId
-  )
-
-  if (hasRecipientInConversation !== -1) {
-    return res
-      .status(StatusCodes.OK)
-      .json({ msg: 'Conversation Already exists' })
-  } else {
-    const user = await User.findOneAndUpdate(
-      { _id: userId, conversations: { $ne: id } },
-      { $addToSet: { conversations: id } },
-      { new: true }
-    )
-
-    return res.status(StatusCodes.OK).json({ updatedUser: user })
-  }
-}
