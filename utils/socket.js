@@ -70,6 +70,8 @@ export const doSocketOperations = (socket, connectedUsers, io) => {
 
   // send user not typing socket event
   socket.on('user_not_typing', ({ matchedConnectedUser, senderId }) => {
+    console.log('🚀 ~ socket.on ~ senderId:', senderId)
+    console.log('🚀 ~ socket.on ~ matchedConnectedUser:', matchedConnectedUser)
     if (matchedConnectedUser) {
       io.to(matchedConnectedUser.socketId).emit('not_typing', {
         senderId,

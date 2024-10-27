@@ -11,7 +11,7 @@ const conversationSchema = new Schema({
       required: true,
     },
   ],
-  lastMessage: { type: String, default: '', required: true },
+  lastMessage: { type: String, default: '' },
   lastMessageTimeStamp: { type: Date, default: Date.now },
 
   participant1: {

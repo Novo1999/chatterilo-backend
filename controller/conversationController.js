@@ -77,6 +77,7 @@ export const createConversation = async (req, res) => {
 // for getting a single conversation
 export const getConversation = async (req, res) => {
   const { id } = req.params
+  console.log('🚀 ~ getConversation ~ id:', id)
   const userId = req.user._id
   console.log('🚀 ~ getConversation ~ userId:', userId)
 
@@ -138,4 +139,29 @@ export const getConversations = async (req, res) => {
     .lean()
 
   res.status(StatusCodes.OK).json(conversations)
+}
+
+export const getConversationLength = async (req, res) => {
+  const userId = req.user._id
+
+  if (!userId) {
+    throw new UnauthenticatedError('User not authenticated')
+  }
+
+  const conversationLength = await Conversation.find({
+    $or: [
+      {
+        participant1: userId,
+      },
+      {
+        participant2: userId,
+      },
+    ],
+  }).countDocuments()
+  console.log(
+    '🚀 ~ getConversationLength ~ conversationLength:',
+    conversationLength
+  )
+
+  res.status(StatusCodes.OK).json({ conversationLength })
 }
